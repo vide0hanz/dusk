@@ -1,12 +1,12 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const unsigned int borderpx       = 5;   /* border pixel of windows */
+static const unsigned int borderpx       = 2;   /* border pixel of windows */
 static const unsigned int snap           = 32;  /* snap pixel */
-static const unsigned int gappih         = 5;   /* horiz inner gap between windows */
-static const unsigned int gappiv         = 5;   /* vert inner gap between windows */
-static const unsigned int gappoh         = 5;   /* horiz outer gap between windows and screen edge */
-static const unsigned int gappov         = 5;   /* vert outer gap between windows and screen edge */
+static const unsigned int gappih         = 2;   /* horiz inner gap between windows */
+static const unsigned int gappiv         = 2;   /* vert inner gap between windows */
+static const unsigned int gappoh         = 2;   /* horiz outer gap between windows and screen edge */
+static const unsigned int gappov         = 2;   /* vert outer gap between windows and screen edge */
 static const unsigned int gappfl         = 5;   /* gap between floating windows (when relevant) */
 static const unsigned int smartgaps_fact = 0;   /* smartgaps factor when there is only one client; 0 = no gaps, 3 = 3x outer gaps */
 
@@ -63,7 +63,7 @@ static int swap_occupied_workspace_label_format_strings = 0; /* 0 gives "icon: l
 
 /* See util.h for options */
 static uint64_t functionality = 0
-//	|AutoReduceNmaster // automatically reduce the number of master clients if one is closed
+	|AutoReduceNmaster // automatically reduce the number of master clients if one is closed
 //	|BanishMouseCursor // like xbanish, hides mouse cursor when using the keyboard
 //	|SmartGaps // enables no or increased gaps if there is only one visible window
 //	|SmartGapsMonocle // enforces no gaps in monocle layout
@@ -81,7 +81,7 @@ static uint64_t functionality = 0
 	|BarBorder // draw a border around the bar
 	|BarPadding // add vertical and side padding as per vertpad and sidepad variables above
 //	|NoBorders // as per the noborder patch, show no border when only one client in tiled mode
-//	|Warp // warp cursor to currently focused window
+	|Warp // warp cursor to currently focused window
 //	|DecorationHints // omit drawing the window border if the applications asks not to
 //	|FocusedOnTop // allows focused window to stay on top of other windows
 //	|FocusedOnTopTiled // additional toggle to allow focused tiled clients to show on top of floating windows
@@ -103,7 +103,7 @@ static uint64_t functionality = 0
 //	|RioDrawIncludeBorders // indicates whether the area drawn using slop includes the window borders
 //	|RioDrawSpawnAsync // spawn the application alongside rather than after drawing area using slop
 //	|RestrictFocusstackToMonitor // restrict focusstack to only operate within the monitor, otherwise focus can drift between monitors
-//	|WinTitleIcons // adds application icons to window titles in the bar
+	|WinTitleIcons // adds application icons to window titles in the bar
 //	|WorkspaceLabels // adds the class of the master client next to the workspace icon
 //	|WorkspacePreview // adds preview images when hovering workspace icons in the bar
 ;
@@ -202,7 +202,7 @@ static char *colors[SchemeLast][4] = {
 /* List of programs to start automatically during startup only. Note that these will not be
  * executed again when doing a restart. */
 static const char *const autostart[] = {
-	"st", NULL,
+	// "st", NULL,
 	NULL /* terminate */
 };
 
@@ -336,7 +336,7 @@ static const BarDef bars[] = {
  *    sizefunc, drawfunc, clickfunc - providing bar module width, draw and click functions
  *    name - does nothing, intended for visual clue and for logging / debugging
  */
-#define PWRL PwrlForwardSlash
+#define PWRL PwrlNone
 static const BarRule barrules[] = {
 	/* monitor  bar    scheme   lpad rpad value  alignment               sizefunc                  drawfunc                 clickfunc                 hoverfunc                 name */
 	{ -1,       0,     0,       0,   0,   PWRL,  BAR_ALIGN_LEFT,         size_powerline,           draw_powerline,          NULL,                     NULL,                     "powerline join" },
@@ -397,13 +397,13 @@ static const WorkspaceRule wsrules[] = {
 	/*                                                                     ------------------------------- schemes ------------------------------- ------ icons ------
 	   name,  monitor,  pinned,  layout,  mfact,  nmaster,  nstack,  gaps, default,          visible,          selected,         occupied,         def,   vac,  occ,  */
 	{  "1",   -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "1",   "",   "[1]", },
-	{  "2",   -1,       0,       9,       .80,   -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "2",   "",   "[2]", },
+	{  "2",   -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "2",   "",   "[2]", },
 	{  "3",   -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "3",   "",   "[3]", },
 	{  "4",   -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "4",   "",   "[4]", },
 	{  "5",   -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "5",   "",   "[5]", },
 	{  "6",   -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "6",   "",   "[6]", },
-	{  "7",   -1,       0,       10,      .75,   -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "7",   "",   "[7]", },
-	{  "8",   -1,       0,       1,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "8",   "",   "[8]", },
+	{  "7",   -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "7",   "",   "[7]", },
+	{  "8",   -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "8",   "",   "[8]", },
 	{  "9",   -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "9",   "",   "[9]", },
 };
 
@@ -490,7 +490,7 @@ static const char *statusclickcmd[] = { NULL, "bin/statusbar/statusclick.sh", NU
 
 static Key keys[] = {
 	/* type       modifier                      key              function                argument */
-	{ KeyPress,   MODKEY,                       XK_d,            spawn,                  {.v = dmenucmd } }, // spawn dmenu for launching other programs
+	{ KeyPress,   MODKEY,                       XK_p,            spawn,                  {.v = dmenucmd } }, // spawn dmenu for launching other programs
 	{ KeyPress,   MODKEY,                       XK_Return,       spawn,                  {.v = termcmd } }, // spawn a terminal
 	{ KeyPress,   MODKEY|Shift,                 XK_Return,       riospawn,               {.v = termcmd } }, // draw/spawn a terminal
 	{ KeyPress,   MODKEY,                       XK_b,            togglebar,              {0} }, // toggles the display of the bar(s) on the current monitor
@@ -506,7 +506,7 @@ static Key keys[] = {
 	{ KeyPress,   MODKEY|Ctrl,                  XK_Left,         placedir,               {.i = 0 } }, // swap places with the client window on the immediate left of the current client
 	{ KeyPress,   MODKEY|Ctrl,                  XK_Right,        placedir,               {.i = 1 } }, // swap places with the client window on the immediate right of the current client
 	{ KeyPress,   MODKEY|Ctrl,                  XK_Up,           placedir,               {.i = 2 } }, // swap places with the client window on the immediate up of the current client
-	{ KeyPress,   MODKEY|Ctrl,                  XK_Down,         placedir,               {.i = 3 } }, // swap places with the client window on the immediate down of the current client
+	{ KeyPress,   MODKEY|Ctrl,                  XK_Down,         placedir,               {.i = 3 } }, // swap places wi1th the client window on the immediate down of the current client
 
 	{ KeyPress,   MODKEY|Ctrl,                  XK_j,            pushdown,               {0} }, // move the selected client down the stack
 	{ KeyPress,   MODKEY|Ctrl,                  XK_k,            pushup,                 {0} }, // move the selected client up the stack
