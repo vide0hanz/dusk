@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const unsigned int borderpx       = 5;   /* border pixel of windows */
+static const unsigned int borderpx       = 2;   /* border pixel of windows */
 static const unsigned int snap           = 32;  /* snap pixel */
 static const unsigned int gappih         = 5;   /* horiz inner gap between windows */
 static const unsigned int gappiv         = 5;   /* vert inner gap between windows */
@@ -72,11 +72,11 @@ static int swap_occupied_workspace_label_format_strings = 0; /* 0 gives "icon: l
  *
  * Non-pinned workspaces are always redistributed among the remaining monitors.
  */
-static const int workspaces_per_mon = 0;
+static const int workspaces_per_mon = 1;
 
 /* See util.h for options */
 static uint64_t functionality = 0
-//	|AutoReduceNmaster // automatically reduce the number of master clients if one is closed
+	|AutoReduceNmaster // automatically reduce the number of master clients if one is closed
 //	|BanishMouseCursor // like xbanish, hides mouse cursor when using the keyboard
 //	|BanishMouseCursorToCorner // makes BanishMouseCursor move the cursor to the top right corner of the screen
 //	|SmartGaps // enables no or increased gaps if there is only one visible window
@@ -95,7 +95,7 @@ static uint64_t functionality = 0
 	|BarBorder // draw a border around the bar
 	|BarPadding // add vertical and side padding as per vertpad and sidepad variables above
 //	|NoBorders // as per the noborder patch, show no border when only one client in tiled mode
-//	|Warp // warp cursor to currently focused window
+	|Warp // warp cursor to currently focused window
 //	|DecorationHints // omit drawing the window border if the applications asks not to
 //	|FocusedOnTop // allows focused window to stay on top of other windows
 //	|FocusedOnTopTiled // additional toggle to allow focused tiled clients to show on top of floating windows
@@ -104,7 +104,7 @@ static uint64_t functionality = 0
 	|FocusOnNetActive // allow windows demanding attention to receive focus automatically
 	|AllowNoModifierButtons // allow some window operations, like move and resize, to work without having to hold down a modifier key
 	|CenterSizeHintsClients // center tiled clients subject to size hints within their tiled area
-//	|ResizeHints // respect size hints also when windows are tiled
+	|ResizeHints // respect size hints also when windows are tiled
 	|SnapToWindows // snap to windows when moving floating clients
 	|SnapToGaps // snap to outer gaps when moving floating clients
 //	|SortScreens // monitors are numbered from left to right
@@ -117,9 +117,9 @@ static uint64_t functionality = 0
 	|SmartLayoutConvertion // automatically adjust layout based on monitor orientation when moving a workspace from one monitor to another
 //	|AutoHideScratchpads // automatically hide open scratchpads when moving to another workspace
 //	|RioDrawIncludeBorders // indicates whether the area drawn using slop includes the window borders
-//	|RioDrawSpawnAsync // spawn the application alongside rather than after drawing area using slop
+	|RioDrawSpawnAsync // spawn the application alongside rather than after drawing area using slop
 //	|RestrictFocusstackToMonitor // restrict focusstack to only operate within the monitor, otherwise focus can drift between monitors
-//	|WinTitleIcons // adds application icons to window titles in the bar
+	|WinTitleIcons // adds application icons to window titles in the bar
 //	|StackerIcons // adds a stacker icon hints in window titles
 //	|WorkspaceLabels // adds the class of the master client next to the workspace icon
 //	|WorkspacePreview // adds preview images when hovering workspace icons in the bar
@@ -131,14 +131,14 @@ static int flexwintitle_hiddenweight     = 0;  // hidden window title weight
 static int flexwintitle_floatweight      = 0;  // floating window title weight, set to 0 to not show floating windows
 static int flexwintitle_separator        = 0;  // width of client separator
 
-static const char *fonts[]               = { "monospace:size=10" };
-static       char dmenufont[60]          = "monospace:size=10";
+static const char *fonts[]               = { "monospace:size=12" };
+static       char dmenufont[60]          = "monospace:size=12";
 
-static char dmenunormfgcolor[] = "#D9CFC5";
-static char dmenunormbgcolor[] = "#492B2D";
-static char dmenuselfgcolor[] = "#D9CFC5";
-static char dmenuselbgcolor[] = "#82363A";
-static char dmenubordercolor[] = "#492B2D";
+static char dmenunormfgcolor[]  = "#D9CFC5";
+static char dmenunormbgcolor[]  = "#492B2D";
+static char dmenuselfgcolor[]   = "#D9CFC5";
+static char dmenuselbgcolor[]   = "#82363A";
+static char dmenubordercolor[]  = "#492B2D";
 
 /* Xresources preferences to load at startup. */
 static const ResourcePref resources[] = {
@@ -215,24 +215,25 @@ static const Rule clientrules[] = {
 	{ .wintype = WTYPE "UTILITY", .flags = AlwaysOnTop|Centered|Floating },
 	{ .wintype = WTYPE "TOOLBAR", .flags = AlwaysOnTop|Centered|Floating },
 	{ .wintype = WTYPE "SPLASH", .flags = AlwaysOnTop|Centered|Floating },
-	{ .instance = "spterm (w)", .scratchkey = 'w', .flags = Floating },
-	{ .instance = "spterm (e)", .scratchkey = 'e', .flags = Floating },
-	{ .instance = "spfm (r)", .scratchkey = 'r', .flags = Floating },
-	{ .class = "Gimp", .workspace = "5", .flags = Floating|SwitchWorkspace },
-	{ .class = "firefox", .workspace = "8", .flags = AttachMaster|SwitchWorkspace },
-	{ .class = "Steam", .flags = Floating|Centered },
-	{ .class = "steam_app_", .flags = SteamGame|Floating|Centered },
-	{ .class = "Google-chrome", .role = "GtkFileChooserDialog", .floatpos = "50% 50%", .flags = AlwaysOnTop|Floating },
-	{ .role = "pop-up", .flags = AlwaysOnTop|Floating|Centered },
-	{ .role = "browser", .workspace = "8", .flags = AttachBelow|OnlyModButtons|SwitchWorkspace },
-	{ .class = "Gnome-terminal", .role = "gnome-terminal-preferences", .flags = Centered },
-	{ .class = "Diffuse", .workspace = "4", .flags = NoSwallow|SwitchWorkspace|RevertWorkspace },
-	{ .class = "File-roller", .workspace = "9", .flags = Centered|Floating|SwitchWorkspace|RevertWorkspace },
-	{ .class = "Alacritty", .flags = Terminal },
-	{ .class = "st-256color", .flags = Terminal|AttachBottom },
-	{ .class = "XTerm", .flags = Terminal },
-	{ .class = "Xephyr", .flags = NoSwallow|Floating|Centered },
+
 	{ .title = "Event Tester", .flags = NoSwallow },
+	{ .title = "spterm (w)", .scratchkey = 'w', .flags = Floating },
+	{ .title = "spterm (e)", .scratchkey = 'e', .flags = Floating },
+	{ .title = "spfm (r)", .scratchkey = 'r', .flags = Floating },
+
+	{ .role = "browser", .workspace = "8", .flags = AttachBelow|OnlyModButtons|SwitchWorkspace },
+	{ .role = "pop-up", .flags = AlwaysOnTop|Floating|Centered },
+
+	{ .class = "Alacritty", .flags = Terminal },
+	{ .class = "Diffuse", .workspace = "4", .flags = NoSwallow|SwitchWorkspace|RevertWorkspace },
+	{ .class = "firefox", .flags = AttachMaster|SwitchWorkspace },
+	{ .class = "Gimp", .workspace = "5", .flags = Floating|SwitchWorkspace },
+	{ .class = "Google-chrome", .role = "GtkFileChooserDialog", .floatpos = "50% 50%", .flags = AlwaysOnTop|Floating },
+	{ .class = "qutebrowser", .flags = AttachMaster|SwitchWorkspace },
+	{ .class = "Steam", .workspace = "9", .flags = Floating|Centered|SwitchWorkspace },
+	{ .class = "steam_app_", .workspace = "9", .flags = SteamGame|Floating|Centered },
+	{ .class = "Xephyr", .flags = NoSwallow|Floating|Centered },
+	{ .class = "XTerm", .flags = Terminal },
 };
 
 /* Bar settings, this defines what bars exists, their position, and what attributes they have.
@@ -307,7 +308,7 @@ static const BarDef bars[] = {
  *    sizefunc, drawfunc, clickfunc - providing bar module width, draw and click functions
  *    name - does nothing, intended for visual clue and for logging / debugging
  */
-#define PWRL PwrlForwardSlash
+#define PWRL PwrlNone
 static const BarRule barrules[] = {
 	/* monitor  bar    scheme   lpad rpad value  alignment               sizefunc                  drawfunc                 clickfunc                 hoverfunc                 name */
 	{ -1,       0,     0,       0,   0,   PWRL,  BAR_ALIGN_LEFT,         size_powerline,           draw_powerline,          NULL,                     NULL,                     "powerline join" },
@@ -376,6 +377,15 @@ static const WorkspaceRule wsrules[] = {
 	{  "7",   -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "7",   "",   "[7]", },
 	{  "8",   -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "8",   "",   "[8]", },
 	{  "9",   -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "9",   "",   "[9]", },
+	{  "10",  -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "1",   "",   "[1]", },
+	{  "11",  -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "2",   "",   "[2]", },
+	{  "12",  -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "3",   "",   "[3]", },
+	{  "13",  -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "4",   "",   "[4]", },
+	{  "14",  -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "5",   "",   "[5]", },
+	{  "15",  -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "6",   "",   "[6]", },
+	{  "16",  -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "7",   "",   "[7]", },
+	{  "17",  -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "8",   "",   "[8]", },
+	{  "18",  -1,       0,       0,       -1,    -1,       -1,      -1,    SchemeWsNorm,     SchemeWsVisible,  SchemeWsSel,      SchemeWsOcc,      "9",   "",   "[9]", },
 };
 
 static const float mfact     = 0.50; /* factor of master area size [0.05..0.95] */
@@ -421,13 +431,13 @@ static const Layout layouts[] = {
 	{ KeyPress,   MOD|Ctrl|Shift,           KEY,      removescratch,       {.v = CMD } }, \
 
 #define WSKEYS(MOD,KEY,NAME) \
-	{ KeyPress,   MOD,                      KEY,      comboviewwsbyname,   {.v = NAME} }, \
-	{ KeyPress,   MOD|Alt,                  KEY,      enablewsbyname,      {.v = NAME} }, \
-	{ KeyPress,   MOD|Shift,                KEY,      movetowsbyname,      {.v = NAME} }, \
-	{ KeyPress,   MOD|Ctrl,                 KEY,      sendtowsbyname,      {.v = NAME} }, \
-	{ KeyPress,   MOD|Ctrl|Shift,           KEY,      movealltowsbyname,   {.v = NAME} }, \
-	{ KeyPress,   MOD|Ctrl|Alt,             KEY,      moveallfromwsbyname, {.v = NAME} }, \
-	{ KeyPress,   MOD|Ctrl|Alt|Shift,       KEY,      swapwsbyname,        {.v = NAME} }, \
+	{ KeyPress,   MOD,                      KEY,      comboviewwsbyindex,   {.i = INDEX} }, \
+	{ KeyPress,   MOD|Alt,                  KEY,      enablewsbyindex,      {.i = INDEX} }, \
+	{ KeyPress,   MOD|Shift,                KEY,      movetowsbyindex,      {.i = INDEX} }, \
+	{ KeyPress,   MOD|Ctrl,                 KEY,      sendtowsbyindex,      {.i = INDEX} }, \
+	{ KeyPress,   MOD|Ctrl|Shift,           KEY,      movealltowsbyindex,   {.i = INDEX} }, \
+	{ KeyPress,   MOD|Ctrl|Alt,             KEY,      moveallfromwsbyindex, {.i = INDEX} }, \
+	{ KeyPress,   MOD|Ctrl|Alt|Shift,       KEY,      swapwsbyindex,        {.i = INDEX} }, \
 
 #define STACKKEYS(MOD,ACTION) \
 	{ KeyPress,   MOD, XK_j, ACTION, {.i = INC(+1) } }, \
@@ -454,7 +464,7 @@ static const StackerIcon stackericons[] = {
 #define CMD(...)   { .v = (const char*[]){ NULL, __VA_ARGS__, NULL } }
 
 /* Scratch/Spawn commands:        NULL (scratchkey), command, argument, argument, ..., NULL */
-static const char *termcmd[]  = { "st", NULL };
+static const char *termcmd[]  = { "alacritty", NULL };
 static const char *dmenucmd[] = {
 	"dmenu_run",
 	"-fn", dmenufont,
@@ -465,14 +475,14 @@ static const char *dmenucmd[] = {
 //	"-bb", dmenubordercolor,
 	NULL
 };
-static const char *spcmd_w[] = {"w", "st", "-n", "spterm (w)", "-g", "120x34", NULL };
-static const char *spcmd_e[] = {"e", "st", "-n", "spterm (e)", "-g", "120x34", NULL };
-static const char *spcmd_r[] = {"r", "st", "-n", "spfm (r)", "-g", "144x41", "-e", "ranger", NULL };
+static const char *spcmd_w[] = {"w", "alacritty", "-T", "spterm (w)", "-g", "120x34", NULL };
+static const char *spcmd_e[] = {"e", "alacritty", "-T", "spterm (e)", "-g", "120x34", NULL };
+static const char *spcmd_r[] = {"r", "alacritty", "-T", "spfm (r)", "-g", "144x41", "-e", "yazi", NULL };
 static const char *statusclickcmd[] = { "~/bin/statusbar/statusclick.sh", NULL };
 
 static Key keys[] = {
 	/* type       modifier                      key              function                argument */
-	{ KeyPress,   MODKEY,                       XK_d,            spawn,                  {.v = dmenucmd } }, // spawn dmenu for launching other programs
+	{ KeyPress,   MODKEY,                       XK_p,            spawn,                  {.v = dmenucmd } }, // spawn dmenu for launching other programs
 	{ KeyPress,   MODKEY,                       XK_Return,       spawn,                  {.v = termcmd } }, // spawn a terminal
 	{ KeyPress,   MODKEY|Shift,                 XK_Return,       riospawn,               {.v = termcmd } }, // draw/spawn a terminal
 	{ KeyPress,   MODKEY,                       XK_b,            togglebar,              {0} }, // toggles the display of the bar(s) on the current monitor
