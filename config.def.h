@@ -475,9 +475,9 @@ static const char *dmenucmd[] = {
 //	"-bb", dmenubordercolor,
 	NULL
 };
-static const char *spcmd_w[] = {"w", "alacritty", "-T", "spterm (w)", "-g", "120x34", NULL };
-static const char *spcmd_e[] = {"e", "alacritty", "-T", "spterm (e)", "-g", "120x34", NULL };
-static const char *spcmd_r[] = {"r", "alacritty", "-T", "spfm (r)", "-g", "144x41", "-e", "yazi", NULL };
+static const char *spcmd_w[] = {"w", "alacritty", "-T", "spterm (w)", NULL };
+static const char *spcmd_e[] = {"e", "alacritty", "-T", "spterm (e)", NULL };
+static const char *spcmd_r[] = {"r", "alacritty", "-T", "spfm (r)", "-e", "yazi", NULL };
 static const char *statusclickcmd[] = { "~/bin/statusbar/statusclick.sh", NULL };
 
 static Key keys[] = {
