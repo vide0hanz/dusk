@@ -430,7 +430,7 @@ static const Layout layouts[] = {
 	{ KeyPress,   MOD|Ctrl,                 KEY,      setscratch,          {.v = CMD } }, \
 	{ KeyPress,   MOD|Ctrl|Shift,           KEY,      removescratch,       {.v = CMD } }, \
 
-#define WSKEYS(MOD,KEY,NAME) \
+#define WSKEYS(MOD,KEY,INDEX) \
 	{ KeyPress,   MOD,                      KEY,      comboviewwsbyindex,   {.i = INDEX} }, \
 	{ KeyPress,   MOD|Alt,                  KEY,      enablewsbyindex,      {.i = INDEX} }, \
 	{ KeyPress,   MOD|Shift,                KEY,      movetowsbyindex,      {.i = INDEX} }, \
@@ -574,15 +574,15 @@ static Key keys[] = {
 	SCRATCHKEYS(MODKEY,                         XK_e,            spcmd_e)
 	SCRATCHKEYS(MODKEY,                         XK_r,            spcmd_r)
 
-	WSKEYS(MODKEY,                              XK_1,            "1")
-	WSKEYS(MODKEY,                              XK_2,            "2")
-	WSKEYS(MODKEY,                              XK_3,            "3")
-	WSKEYS(MODKEY,                              XK_4,            "4")
-	WSKEYS(MODKEY,                              XK_5,            "5")
-	WSKEYS(MODKEY,                              XK_6,            "6")
-	WSKEYS(MODKEY,                              XK_7,            "7")
-	WSKEYS(MODKEY,                              XK_8,            "8")
-	WSKEYS(MODKEY,                              XK_9,            "9")
+	WSKEYS(MODKEY,                              XK_1,            1)
+	WSKEYS(MODKEY,                              XK_2,            2)
+	WSKEYS(MODKEY,                              XK_3,            3)
+	WSKEYS(MODKEY,                              XK_4,            4)
+	WSKEYS(MODKEY,                              XK_5,            5)
+	WSKEYS(MODKEY,                              XK_6,            6)
+	WSKEYS(MODKEY,                              XK_7,            7)
+	WSKEYS(MODKEY,                              XK_8,            8)
+	WSKEYS(MODKEY,                              XK_9,            9)
 
 	/* Unassigned key bindings (available externally via the duskc command) */
 //	{ KeyPress,   MODKEY,                       XK_Control_R,    showbar,                {0} },
