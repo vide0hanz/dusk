@@ -30,12 +30,16 @@ struct BarDef {
 	int vert;
 	const char *barpos;
 	const char *name;
+	const char *extclass;
+	const char *extinstance;
+	const char *extname;
 };
 
 struct Bar {
 	Window win;
 	Monitor *mon;
 	Bar *next;
+	const BarDef *def;
 	const char *barpos;
 	const char *name;
 	int vert;
@@ -94,9 +98,13 @@ static void recreatebar(Bar *bar);
 static void reducewindowarea(Monitor *m);
 static void removebar(Bar *bar);
 static void setbarpos(Bar *bar);
+static void getbarsize(Bar *bar, int *w, int *h);
 static void showbar(const Arg *arg);
 static void hidebar(const Arg *arg);
+static void showhidebar(Bar *bar);
 static void togglebar(const Arg *arg);
 static void togglebarpadding(const Arg *arg);
 static void togglecompact(const Arg *arg);
 static Bar * wintobar(Window win);
+static Bar * mapexternalbar(Window win);
+static int matchextbar(Bar *bar, Window win);

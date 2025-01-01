@@ -5,7 +5,6 @@
 #include <kvm.h>
 #endif /* __OpenBSD__ */
 
-static int scanner;
 static xcb_connection_t *xcon;
 
 void
@@ -58,15 +57,12 @@ replaceclient(Client *old, Client *new)
 
 	Client *c = NULL;
 	Workspace *ws = old->ws;
-	XWindowChanges wc;
 	int x, y, w, h;
 
 	new->ws = ws;
 
 	/* Place the new window below the old in terms of stack order. */
-	wc.stack_mode = Below;
-	wc.sibling = old->win;
-	XConfigureWindow(dpy, new->win, CWSibling|CWStackMode, &wc);
+	restackwin(new->win, Below, old->win);
 	setflag(new, Floating, old->flags & Floating);
 
 	new->scratchkey = old->scratchkey;

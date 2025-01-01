@@ -487,6 +487,7 @@ static void resize(Client *c, int x, int y, int w, int h, int interact);
 static void resizeclient(Client *c, int x, int y, int w, int h);
 static void resizeclientpad(Client *c, int x, int y, int w, int h, int xpad, int ypad);
 static void restack(Workspace *ws);
+static void restackwin(Window win, int stack_mode, Window sibling);
 static void run(void);
 static void scan(void);
 static int sendevent(Window w, Atom proto, int m, long d0, long d1, long d2, long d3, long d4);
@@ -789,7 +790,7 @@ reapplyrules(Client *c)
 		drawbar(rule_ws->mon);
 
 	/* If the client indicates that it is in fullscreen, or if the FullScreen flag has been
-	 * explictly set via client rules, then enable fullscreen now. */
+	 * explicitly set via client rules, then enable fullscreen now. */
 	if (getatomprop(c, netatom[NetWMState], XA_ATOM) == netatom[NetWMFullscreen] || ISFULLSCREEN(c)) {
 		setflag(c, FullScreen, 0);
 		setfullscreen(c, 1, 0);
@@ -1512,7 +1513,7 @@ configurenotify(XEvent *e)
 			setviewport();
 			for (m = mons; m; m = m->next) {
 				for (bar = m->bar; bar; bar = bar->next)
-					XMoveResizeWindow(dpy, bar->win, bar->bx, bar->by, bar->bw, bar->bh);
+					showhidebar(bar);
 				freepreview(m);
 			}
 			for (ws = workspaces; ws; ws = ws->next) {
@@ -1544,6 +1545,7 @@ configurerequest(XEvent *e)
 {
 	Client *c;
 	Monitor *m;
+	Bar *bar;
 	XConfigureRequestEvent *ev = &e->xconfigurerequest;
 	XWindowChanges wc;
 	Workspace *ws;
@@ -1621,6 +1623,11 @@ configurerequest(XEvent *e)
 			setflag(c, NoBorder, enabled(NoBorders) && WASNOBORDER(c));
 			configure(c);
 		}
+	} else if ((bar = wintobar(ev->window))) {
+		if (enabled(Debug)) {
+			fprintf(stderr, "configurerequest: received event %ld for bar %s\n", ev->value_mask, bar->name);
+			fprintf(stderr, "    - x = %d, y = %d, w = %d, h = %d (ignored)\n", ev->x, ev->y, ev->width, ev->height);
+		}
 	} else {
 		wc.x = ev->x;
 		wc.y = ev->y;
@@ -1658,6 +1665,7 @@ createmon(int num)
 Workspace *
 destroynotify(XEvent *e)
 {
+	Monitor *m;
 	Client *c;
 	Bar *bar;
 	Window focus_return;
@@ -1689,7 +1697,11 @@ destroynotify(XEvent *e)
 	if ((bar = wintobar(ev->window))) {
 		if (enabled(Debug))
 			fprintf(stderr, "destroynotify: received event for bar %s\n", bar->name);
+		m = bar->mon;
 		recreatebar(bar);
+		updatebarpos(m);
+		setworkspaceareasformon(m);
+		arrangemon(m);
 		return NULL;
 	}
 
@@ -2529,14 +2541,20 @@ maprequest(XEvent *e)
 
 	if (!XGetWindowAttributes(dpy, ev->window, &wa))
 		return;
+
 	if (!wa.depth) {
 		fprintf(stderr, "maprequest: refusing to map window %ld with depth of 0\n", ev->window);
 		return;
 	}
+
+	if (mapexternalbar(ev->window))
+		return;
+
 	if (wa.override_redirect) {
 		XRaiseWindow(dpy, ev->window);
 		return;
 	}
+
 	if (!wintoclient(ev->window))
 		manage(ev->window, &wa);
 }
@@ -2744,7 +2762,7 @@ raiseclient(Client *c)
 	 * selected workspace when for searching other clients. */
 	ws = (!c ? selws : c->ws == stickyws ? stickyws->next : c->ws);
 	wc.stack_mode = Above;
-	wc.sibling = ws->mon->bar ? ws->mon->bar->win : wmcheckwin;
+	wc.sibling = wmcheckwin;
 
 	/* If the raised client is always on top, then it should be raised first. */
 	if (ALWAYSONTOP(c) || ISTRANSIENT(c) || ISSTICKY(c)) {
@@ -2939,10 +2957,10 @@ restack(Workspace *ws)
 
 	raised = (enabled(FocusedOnTopTiled) || FREEFLOW(c) || ISTRUEFULLSCREEN(c) ? c : NULL);
 
-	/* Place tiled clients below the bar window */
+	/* Place tiled clients below the wmcheckwin window */
 	if (ws->layout->arrange) {
 		wc.stack_mode = Below;
-		wc.sibling = ws->mon->bar ? ws->mon->bar->win : wmcheckwin;
+		wc.sibling = wmcheckwin;
 		for (s = ws->stack; s; s = s->snext) {
 			if (TILED(s) && s != raised) {
 				XConfigureWindow(dpy, s->win, CWSibling|CWStackMode, &wc);
@@ -2959,6 +2977,16 @@ restack(Workspace *ws)
 		warp(c);
 
 	skipfocusevents();
+}
+
+void
+restackwin(Window win, int stack_mode, Window sibling)
+{
+	XWindowChanges wc;
+
+	wc.stack_mode = stack_mode;
+	wc.sibling = sibling;
+	XConfigureWindow(dpy, win, CWSibling|CWStackMode, &wc);
 }
 
 void
@@ -3002,7 +3030,6 @@ run(void)
 void
 scan(void)
 {
-	scanner = 1;
 	char swin[256] = {0};
 	unsigned int i, num;
 	Window d1, d2, *wins = NULL;
@@ -3012,6 +3039,8 @@ scan(void)
 		for (i = 0; i < num; i++) {
 			if (!XGetWindowAttributes(dpy, wins[i], &wa)
 			|| wa.override_redirect || XGetTransientForHint(dpy, wins[i], &d1))
+				continue;
+			if (mapexternalbar(wins[i]))
 				continue;
 			if (wa.map_state == IsViewable || getstate(wins[i]) == IconicState)
 				manage(wins[i], &wa);
@@ -3027,7 +3056,6 @@ scan(void)
 		}
 		XFree(wins);
 	}
-	scanner = 0;
 }
 
 void
@@ -3569,8 +3597,6 @@ togglefloating(const Arg *arg)
 {
 	Client *c = CLIENT;
 	Workspace *ws = NULL;
-	XWindowChanges wc;
-	wc.stack_mode = Above;
 
 	for (c = nextmarked(NULL, c); c; c = nextmarked(c->next, NULL)) {
 		if (ISTRUEFULLSCREEN(c)) /* no support for fullscreen windows */
@@ -3589,8 +3615,7 @@ togglefloating(const Arg *arg)
 				floatpos(&((Arg) { .v = toggle_float_pos }));
 			else
 				restorefloats(c);
-			wc.sibling = c->ws->mon->bar ? c->ws->mon->bar->win : wmcheckwin;
-			XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
+			restackwin(c->win, Above, wmcheckwin);
 		}
 
 		setfloatinghint(c);
@@ -3607,8 +3632,6 @@ togglefloating(const Arg *arg)
 void
 unfocus(Client *c, int setfocus, Client *nextfocus)
 {
-	XWindowChanges wc;
-
 	if (!c)
 		return;
 	if (ISTRUEFULLSCREEN(c) && ISVISIBLE(c) && c->ws == selws && nextfocus && ISTILED(nextfocus) && !STEAMGAME(c)) {
@@ -3625,11 +3648,8 @@ unfocus(Client *c, int setfocus, Client *nextfocus)
 	else
 		XSetWindowBorder(dpy, c->win, scheme[clientscheme(c, nextfocus)][ColBorder].pixel);
 
-	if (enabled(FocusedOnTopTiled) && ISTILED(c)) {
-		wc.stack_mode = Below;
-		wc.sibling = c->ws->mon->bar ? c->ws->mon->bar->win : wmcheckwin;
-		XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
-	}
+	if (enabled(FocusedOnTopTiled) && ISTILED(c))
+		restackwin(c->win, Below, wmcheckwin);
 
 	c->ws->sel = NULL;
 }
