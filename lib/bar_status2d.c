@@ -56,11 +56,11 @@ drw_2dtext(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int 
 	Image *image;
 	Clr oldbg = scheme[defscheme][ColFg];
 	Clr oldfg = scheme[defscheme][ColBg];
-	len = strlen(text2d) + 1;
-	text = (char*) ecalloc(1, sizeof(char)*(len));
+	len = sizeof(char) * (strlen(text2d) + 1);
+	text = (char*) ecalloc(1, len);
 	p = text;
 
-	strcpy(text, text2d);
+	strlcpy(text, text2d, len);
 
 	if (drawbg) {
 		drw_setscheme(drw, scheme[defscheme]);
@@ -74,6 +74,7 @@ drw_2dtext(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int 
 
 	/* process status text */
 	i = -1;
+
 	while (text[++i]) {
 		if (text[i] == '^' && !isCode) {
 			isCode = 1;
@@ -219,35 +220,25 @@ drw_2dtext(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int 
 		if (tw > 0)
 			drw_text(drw, dx, y, tw, bh, 0, text, invert, fillbg);
 	}
+
 	free(p);
 
 	return 1;
 }
 
 void
-setstatus(const Arg args[], int num_args)
+setstatus(int status_no, char const *statustext)
 {
 	const BarRule *br;
-	int i, j, sid = args[0].i;
 
-	if (sid < 0 || sid >= NUM_STATUSES)
+	if (status_no < 0 || status_no >= NUM_STATUSES)
 		return;
 
-	char const *statustext = args[1].v;
-
-	for (j = 0, i = 0; j < STATUS_BUFFER - 1 && statustext[i] != '\0'; j++, i++) {
-		if (statustext[i] == '~' && statustext[i + 1] == '/') {
-			strlcpy(rawstatustext[sid] + j, env_home, env_homelen + 1);
-			j += env_homelen - 1;
-		} else {
-			rawstatustext[sid][j] = statustext[i];
-		}
-	}
-	rawstatustext[sid][j] = '\0';
+	strlcpy(rawstatustext[status_no], statustext, sizeof rawstatustext[status_no]);
 
 	for (int r = 0; r < LENGTH(barrules); r++) {
 		br = &barrules[r];
-		if (br->value == sid && br->drawfunc == draw_status)
+		if (br->value == status_no && br->drawfunc == draw_status)
 			drawbarmodule(br, r);
 	}
 }
@@ -261,11 +252,10 @@ status2dtextlength(char* text2d)
 	char *p = {0};
 	Image *image;
 
-	len = strlen(text2d) + 1;
-	text = (char*) ecalloc(1, sizeof(char)*len);
+	len = sizeof(char) * (strlen(text2d) + 1);
+	text = (char*) ecalloc(1, len);
 	p = text;
-
-	strcpy(text, text2d);
+	strlcpy(text, text2d, len);
 
 	/* compute width of the status text */
 	w = 0;
@@ -325,6 +315,7 @@ loadimage(char *path, int use_cache)
 	int least = -1;
 	time_t leasttime = INT_MAX - 1;
 	Image *image;
+	char *fullpath = subst_home_directory(path);
 
 	/* First see if we can find the image path in our list of buffered images */
 	for (i = 0; i < LENGTH(imagebuffer); i++) {
@@ -336,10 +327,11 @@ loadimage(char *path, int use_cache)
 		if (imagebuffer[i].image.icon == None)
 			continue;
 
-		if (!strcmp(imagebuffer[i].image.iconpath, path)) {
+		if (!strcmp(imagebuffer[i].image.iconpath, fullpath)) {
 			if (use_cache) {
 				imagebuffer[i].atime = time(NULL);
-				return &imagebuffer[i].image;
+				image = &imagebuffer[i].image;
+				goto bail;
 			}
 
 			least = i;
@@ -360,10 +352,14 @@ loadimage(char *path, int use_cache)
 		imagebuffer[least].atime = 0;
 	}
 
-	if (!loadimagefromfile(image, path))
-		return NULL;
+	if (loadimagefromfile(image, fullpath)) {
+		imagebuffer[least].atime = time(NULL);
+	} else {
+		image = NULL;
+	}
 
-	imagebuffer[least].atime = time(NULL);
+bail:
+	free(fullpath);
 	return image;
 }
 
