@@ -1,3 +1,5 @@
+Atom utf8string;
+
 int
 atomin(Atom input, Atom *list, int nitems)
 {
@@ -27,18 +29,18 @@ persistworkspacestate(Workspace *ws)
 
 	/* Perists workspace information in 32 bits laid out like this:
 	 *
-	 * 000|1|0|0000|0000|0001|0001|000|000|001|0|1
-	 *    | | |    |    |    |    |   |   |   | |-- ws->visible
-	 *    | | |    |    |    |    |   |   |   |-- ws->pinned
-	 *    | | |    |    |    |    |   |   |-- ws->nmaster
-	 *    | | |    |    |    |    |   |-- ws->nstack
-	 *    | | |    |    |    |    |-- ws->mon
-	 *    | | |    |    |    |-- ws->ltaxis[LAYOUT] (i.e. split)
-	 *    | | |    |    |-- ws->ltaxis[MASTER]
-	 *    | | |    |-- ws->ltaxis[STACK]
-	 *    | | |-- ws->ltaxis[STACK2]
-	 *    | |-- mirror layout (indicated by negative ws->ltaxis[LAYOUT])
-	 *    |-- ws->enablegaps
+	 * |1|0|00000|00000|00001|0001|000|000|001|0|1
+	 * | | |     |     |     |    |   |   |   | |-- ws->visible
+	 * | | |     |     |     |    |   |   |   |-- ws->pinned
+	 * | | |     |     |     |    |   |   |-- ws->nmaster
+	 * | | |     |     |     |    |   |-- ws->nstack
+	 * | | |     |     |     |    |-- ws->mon
+	 * | | |     |     |     |-- ws->ltaxis[LAYOUT] (i.e. split)
+	 * | | |     |     |-- ws->ltaxis[MASTER]
+	 * | | |     |-- ws->ltaxis[STACK]
+	 * | | |-- ws->ltaxis[STACK2]
+	 * | |-- mirror layout (indicated by negative ws->ltaxis[LAYOUT])
+	 * |-- ws->enablegaps
 	 */
 	uint32_t data[] = {
 		(ws->visible & 0x1) |
@@ -47,11 +49,11 @@ persistworkspacestate(Workspace *ws)
 		(ws->nstack & 0x7 ) << 5 |
 		(ws->mon->num & 0x7) << 8 |
 		(abs(ws->ltaxis[LAYOUT]) & 0xF) << 11 |
-		(ws->ltaxis[MASTER] & 0xF) << 15 |
-		(ws->ltaxis[STACK] & 0xF) << 19 |
-		(ws->ltaxis[STACK2] & 0xF) << 23 |
-		(ws->ltaxis[LAYOUT] < 0 ? 1 : 0) << 27 |
-		(ws->enablegaps & 0x1) << 28
+		(ws->ltaxis[MASTER] & 0x1F) << 15 |
+		(ws->ltaxis[STACK] & 0x1F) << 20 |
+		(ws->ltaxis[STACK2] & 0x1F) << 25 |
+		(ws->ltaxis[LAYOUT] < 0 ? 1 : 0) << 30 |
+		(ws->enablegaps & 0x1) << 31
 	};
 
 	XChangeProperty(dpy, root, duskatom[DuskWorkspace], XA_CARDINAL, 32,
@@ -70,6 +72,7 @@ persistworkspacestate(Workspace *ws)
 		setclientflags(c);
 		setclientfields(c);
 		setclientlabel(c);
+		setclientalttitle(c);
 		setclienticonpath(c);
 		savewindowfloatposition(c, c->ws->mon);
 
@@ -79,6 +82,7 @@ persistworkspacestate(Workspace *ws)
 			setclientflags(s);
 			setclientfields(s);
 			setclientlabel(s);
+			setclientalttitle(s);
 			setclienticonpath(s);
 			savewindowfloatposition(s, s->ws->mon);
 			s = s->swallowing;
@@ -136,14 +140,14 @@ restoreworkspacestate(Workspace *ws)
 		ws->nmaster = (settings >> 2) & 0x7;
 		ws->nstack = (settings >> 5) & 0x7;
 		ws->ltaxis[LAYOUT] = (settings >> 11) & 0xF;
-		if (settings & (1 << 27)) // mirror layout
+		if (settings & (1 << 30)) // mirror layout
 			ws->ltaxis[LAYOUT] *= -1;
-		ws->ltaxis[MASTER] = (settings >> 15) & 0xF;
-		ws->ltaxis[STACK] = (settings >> 19) & 0xF;
-		ws->ltaxis[STACK2] = (settings >> 23) & 0xF;
-		ws->enablegaps = (settings >> 28) & 0x1;
+		ws->ltaxis[MASTER] = WRAP((settings >> 15) & 0x1F, 0, AXIS_LAST - 1);
+		ws->ltaxis[STACK]  = WRAP((settings >> 20) & 0x1F, 0, AXIS_LAST - 1);
+		ws->ltaxis[STACK2] = WRAP((settings >> 25) & 0x1F, 0, AXIS_LAST - 1);
+		ws->enablegaps = (settings >> 31) & 0x1;
 
-		/* Restore layout if we have an exact match, floating layout interpreted as 0x7fff800 */
+		/* Restore layout if we have an exact match, floating layout interpreted as 0x1ef7f800 */
 		for (i = 0; i < LENGTH(layouts); i++) {
 			layout = &layouts[i];
 			if ((layout->arrange == flextile
@@ -151,11 +155,11 @@ restoreworkspacestate(Workspace *ws)
 				&& ws->ltaxis[MASTER] == layout->preset.masteraxis
 				&& ws->ltaxis[STACK]  == layout->preset.stack1axis
 				&& ws->ltaxis[STACK2] == layout->preset.stack2axis)
-				|| ((settings & 0x7fff800) == 0x7fff800
+				|| ((settings & 0x1ef7f800) == 0x1ef7f800
 				&& layout->arrange == NULL)
 			) {
 				ws->layout = layout;
-				strlcpy(ws->ltsymbol, ws->layout->symbol, sizeof ws->ltsymbol);
+				freestrdup(&ws->ltsymbol, ws->layout->symbol);
 				break;
 			}
 		}
@@ -288,6 +292,31 @@ restorewindowfloatposition(Client *c, Monitor *m)
 	return 1;
 }
 
+/* Sets WM_STATE, which is a basic window manager hint part of the older ICCCM specification */
+void
+setclientstate(Client *c, long state)
+{
+	long data[] = { state, None };
+
+	XChangeProperty(dpy, c->win, wmatom[WMState], wmatom[WMState], 32,
+		PropModeReplace, (unsigned char *)data, 2);
+}
+
+/* Sets _NET_WM_STATE, which is an extended window manager hint part of the EWMH specification */
+void
+setclientnetstate(Client *c, int state)
+{
+	if (!state) {
+		/* Clear property if we have no state */
+		XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
+			PropModeReplace, (unsigned char*)0, 0);
+		return;
+	}
+
+	XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
+		PropModeReplace, (unsigned char*)&netatom[state], 1);
+}
+
 void
 setdesktopnames(void)
 {
@@ -305,6 +334,7 @@ setdesktopnames(void)
 
 	Xutf8TextListToTextProperty(dpy, wslist, num_workspaces, XUTF8StringStyle, &text);
 	XSetTextProperty(dpy, root, &text, netatom[NetDesktopNames]);
+	XFree(text.value);
 }
 
 void
@@ -341,8 +371,10 @@ setclientfields(Client *c)
 void
 setclienticonpath(Client *c)
 {
-	if (!strlen(c->iconpath))
+	if (!c->iconpath) {
+		XDeleteProperty(dpy, c->win, duskatom[DuskClientIconPath]);
 		return;
+	}
 
 	XChangeProperty(dpy, c->win, duskatom[DuskClientIconPath], XA_STRING, 8, PropModeReplace, (unsigned char *)c->iconpath, strlen(c->iconpath));
 }
@@ -350,7 +382,23 @@ setclienticonpath(Client *c)
 void
 setclientlabel(Client *c)
 {
+	if (!c->label) {
+		XDeleteProperty(dpy, c->win, duskatom[DuskClientLabel]);
+		return;
+	}
+
 	XChangeProperty(dpy, c->win, duskatom[DuskClientLabel], XA_STRING, 8, PropModeReplace, (unsigned char *)c->label, strlen(c->label));
+}
+
+void
+setclientalttitle(Client *c)
+{
+	if (!c->alttitle) {
+		XDeleteProperty(dpy, c->win, duskatom[DuskClientAltName]);
+		return;
+	}
+
+	XChangeProperty(dpy, c->win, duskatom[DuskClientAltName], utf8string, 8, PropModeReplace, (unsigned char *)c->alttitle, strlen(c->alttitle));
 }
 
 void
@@ -376,7 +424,7 @@ getclientflags(Client *c)
 	if (flags1 || flags2) {
 		c->flags = flags1 | (flags2 << 32);
 		/* Remove flags that should not survive a restart */
-		removeflag(c, Marked|Centered|SwitchWorkspace|EnableWorkspace|RevertWorkspace);
+		removeflag(c, Marked|Centered|SwitchWorkspace|EnableWorkspace|RevertWorkspace|Locked);
 	}
 }
 
@@ -402,17 +450,17 @@ getclienticonpath(Client *c)
 {
 	Atom type;
 	int format;
-	unsigned int i;
 	unsigned long after;
 	unsigned char *data = 0;
-	long unsigned int size = LENGTH(c->iconpath);
+	char *iconpath;
+	long unsigned int size;
 
 	if (XGetWindowProperty(dpy, c->win, duskatom[DuskClientIconPath], 0, 1024, 0, XA_STRING,
 				&type, &format, &size, &after, &data) == Success) {
 		if (data) {
-			if (type == XA_STRING) {
-				for (i = 0; i < size; ++i)
-					c->iconpath[i] = data[i];
+			iconpath = (char *)data;
+			if (type == XA_STRING && strlen(iconpath)) {
+				freestrdup(&c->iconpath, iconpath);
 			}
 			XFree(data);
 		}
@@ -424,17 +472,39 @@ getclientlabel(Client *c)
 {
 	Atom type;
 	int format;
-	unsigned int i;
 	unsigned long after;
 	unsigned char *data = 0;
-	long unsigned int size = LENGTH(c->label);
+	char *label;
+	long unsigned int size;
 
 	if (XGetWindowProperty(dpy, c->win, duskatom[DuskClientLabel], 0, 1024, 0, XA_STRING,
 				&type, &format, &size, &after, &data) == Success) {
 		if (data) {
-			if (type == XA_STRING) {
-				for (i = 0; i < size; ++i)
-					c->label[i] = data[i];
+			label = (char *)data;
+			if (type == XA_STRING && strlen(label)) {
+				freestrdup(&c->label, label);
+			}
+			XFree(data);
+		}
+	}
+}
+
+void
+getclientalttitle(Client *c)
+{
+	Atom type;
+	int format;
+	unsigned long after;
+	unsigned char *data = 0;
+	char *alttitle;
+	long unsigned int size;
+
+	if (XGetWindowProperty(dpy, c->win, duskatom[DuskClientAltName], 0, 1024, 0, utf8string,
+				&type, &format, &size, &after, &data) == Success) {
+		if (data) {
+			alttitle = (char *)data;
+			if (type == utf8string && strlen(alttitle)) {
+				freestrdup(&c->alttitle, alttitle);
 			}
 			XFree(data);
 		}

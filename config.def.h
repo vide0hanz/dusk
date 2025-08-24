@@ -90,7 +90,7 @@ static const int workspaces_per_mon = 1;
 static uint64_t functionality = 0
 	|AutoReduceNmaster // automatically reduce the number of master clients if one is closed
 //	|BanishMouseCursor // like xbanish, hides mouse cursor when using the keyboard
-//	|BanishMouseCursorToCorner // makes BanishMouseCursor move the cursor to the top right corner of the screen
+//	|BanishMouseCursorToCorner // makes BanishMouseCursor move the cursor to one of the corners of the focused window
 //	|SmartGaps // enables no or increased gaps if there is only one visible window
 //	|SmartGapsMonocle // enforces no gaps in monocle layout
 	|Systray // enables a systray in the bar
@@ -105,6 +105,7 @@ static uint64_t functionality = 0
 	|ColorEmoji // enables color emoji support (removes Xft workaround)
 //	|Status2DNoAlpha // option to not use alpha when drawing status2d status
 	|BarBorder // draw a border around the bar
+//	|BarBorderColBg // optionally use the bar background colour for the bar border (rather than border colour)
 	|BarPadding // add vertical and side padding as per vertpad and sidepad variables above
 //	|NoBorders // as per the noborder patch, show no border when only one client in tiled mode
 	|Warp // warp cursor to currently focused window
@@ -420,10 +421,10 @@ static const Layout layouts[] = {
 	{ "[D]",      flextile,         { -1, -1, SPLIT_VERTICAL, TOP_TO_BOTTOM, MONOCLE, 0, NULL }, "deck" },
 	{ "TTT",      flextile,         { -1, -1, SPLIT_HORIZONTAL, LEFT_TO_RIGHT, LEFT_TO_RIGHT, 0, NULL }, "bstack" },
 	{ "===",      flextile,         { -1, -1, SPLIT_HORIZONTAL, LEFT_TO_RIGHT, TOP_TO_BOTTOM, 0, NULL }, "bstackhoriz" },
-	{ "==#",      flextile,         { -1, -1, SPLIT_HORIZONTAL, TOP_TO_BOTTOM, GAPPLESSGRID_CFACTS, 0, NULL }, "bstackgrid" },
+	{ "==#",      flextile,         { -1, -1, SPLIT_HORIZONTAL, TOP_TO_BOTTOM, GAPLESSGRID_CFACTS, 0, NULL }, "bstackgrid" },
 	{ "|M|",      flextile,         { -1, -1, SPLIT_CENTERED_VERTICAL, LEFT_TO_RIGHT, TOP_TO_BOTTOM, TOP_TO_BOTTOM, NULL }, "centeredmaster" },
 	{ "-M-",      flextile,         { -1, -1, SPLIT_CENTERED_HORIZONTAL, TOP_TO_BOTTOM, LEFT_TO_RIGHT, LEFT_TO_RIGHT, NULL }, "centeredmaster horiz" },
-	{ ":::",      flextile,         { -1, -1, NO_SPLIT, GAPPLESSGRID_CFACTS, GAPPLESSGRID_CFACTS, 0, NULL }, "gappless grid" },
+	{ ":::",      flextile,         { -1, -1, NO_SPLIT, GAPLESSGRID_CFACTS, GAPLESSGRID_CFACTS, 0, NULL }, "gapless grid" },
 	{ "[\\]",     flextile,         { -1, -1, NO_SPLIT, DWINDLE_CFACTS, DWINDLE_CFACTS, 0, NULL }, "fibonacci dwindle" },
 	{ "(@)",      flextile,         { -1, -1, NO_SPLIT, SPIRAL_CFACTS, SPIRAL_CFACTS, 0, NULL }, "fibonacci spiral" },
 	{ "[T]",      flextile,         { -1, -1, SPLIT_VERTICAL, LEFT_TO_RIGHT, TATAMI_CFACTS, 0, NULL }, "tatami mats" },
@@ -506,14 +507,14 @@ static Key keys[] = {
 	{ KeyPress,   MODKEY,                       XK_k,            focusstack,             {.i = -1 } }, // focus on the previous client in the stack
 	{ KeyPress,   MODKEY|Alt|Shift,             XK_j,            focusstack,             {.i = +2 } }, // allows focusing on hidden clients
 	{ KeyPress,   MODKEY|Alt|Shift,             XK_k,            focusstack,             {.i = -2 } }, // allows focusing on hidden clients
-	{ KeyPress,   MODKEY,                       XK_Left,         focusdir,               {.i = 0 } }, // focus on the client left of the currently focused client
-	{ KeyPress,   MODKEY,                       XK_Right,        focusdir,               {.i = 1 } }, // focus on the client right of the currently focused client
-	{ KeyPress,   MODKEY,                       XK_Up,           focusdir,               {.i = 2 } }, // focus on the client above the currently focused client
-	{ KeyPress,   MODKEY,                       XK_Down,         focusdir,               {.i = 3 } }, // focus on the client below the currently focused client
-	{ KeyPress,   MODKEY|Ctrl,                  XK_Left,         placedir,               {.i = 0 } }, // swap places with the client window on the immediate left of the current client
-	{ KeyPress,   MODKEY|Ctrl,                  XK_Right,        placedir,               {.i = 1 } }, // swap places with the client window on the immediate right of the current client
-	{ KeyPress,   MODKEY|Ctrl,                  XK_Up,           placedir,               {.i = 2 } }, // swap places with the client window on the immediate up of the current client
-	{ KeyPress,   MODKEY|Ctrl,                  XK_Down,         placedir,               {.i = 3 } }, // swap places with the client window on the immediate down of the current client
+	{ KeyPress,   MODKEY,                       XK_Left,         focusdir,               {.i = LEFT } }, // focus on the client left of the currently focused client
+	{ KeyPress,   MODKEY,                       XK_Right,        focusdir,               {.i = RIGHT } }, // focus on the client right of the currently focused client
+	{ KeyPress,   MODKEY,                       XK_Up,           focusdir,               {.i = UP } }, // focus on the client above the currently focused client
+	{ KeyPress,   MODKEY,                       XK_Down,         focusdir,               {.i = DOWN } }, // focus on the client below the currently focused client
+	{ KeyPress,   MODKEY|Ctrl,                  XK_Left,         placedir,               {.i = LEFT } }, // swap places with the client window on the immediate left of the current client
+	{ KeyPress,   MODKEY|Ctrl,                  XK_Right,        placedir,               {.i = RIGHT } }, // swap places with the client window on the immediate right of the current client
+	{ KeyPress,   MODKEY|Ctrl,                  XK_Up,           placedir,               {.i = UP } }, // swap places with the client window above the current client
+	{ KeyPress,   MODKEY|Ctrl,                  XK_Down,         placedir,               {.i = DOWN } }, // swap places with the client window below the current client
 
 	{ KeyPress,   MODKEY|Ctrl,                  XK_j,            pushdown,               {0} }, // move the selected client down the stack
 	{ KeyPress,   MODKEY|Ctrl,                  XK_k,            pushup,                 {0} }, // move the selected client up the stack

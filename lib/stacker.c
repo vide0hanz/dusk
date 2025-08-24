@@ -111,13 +111,16 @@ stackposclient(const Arg *arg)
 	if (ISSTACK(arg))
 		return nthstack(ws->clients, GETSTACK(arg), 1);
 
+	if (ISTILE(arg))
+		return nthtiled(ws->clients, GETTILE(arg), 1);
+
 	if (ISLAST(arg))
 		return lasttiled(ws->clients);
 
 	if (ISPREVSEL(arg))
 		return prevsel();
 
-	return nthtiled(ws->clients, arg->i, 1);
+	return nthvisible(ws->clients, arg->i, 1);
 }
 
 const StackerIcon *
@@ -132,10 +135,12 @@ getstackericonforclient(Client *c)
 	for (i = 0; i < LENGTH(stackericons); i++) {
 		stacklevel = stackericons[i].arg.i;
 
-		/* MASTER, STACK and implicit client positions take precedence for icons */
+		/* MASTER, STACK, TILE and implicit client positions take precedence for icons */
 		if (nthm && stacklevel == MASTER(nthm)) {
 			best = i;
 		} else if (nths && stacklevel == STACK(nths)) {
+			best = i;
+		} else if (ntht && stacklevel == TILE(ntht)) {
 			best = i;
 		} else if (stacklevel == nthc) {
 			best = i;

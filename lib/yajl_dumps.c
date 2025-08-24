@@ -8,52 +8,54 @@ dump_settings(yajl_gen gen)
 	// clang-format off
 	YMAP(
 		YSTR("Functionality"); YMAP(
+			YSTR("AllowNoModifierButtons"); YBOOL(enabled(AllowNoModifierButtons));
+			YSTR("AltWindowTitles"); YBOOL(enabled(AltWindowTitles));
+			YSTR("AltWorkspaceIcons"); YBOOL(enabled(AltWorkspaceIcons));
+			YSTR("AutoHideScratchpads"); YBOOL(enabled(AutoHideScratchpads));
 			YSTR("AutoReduceNmaster"); YBOOL(enabled(AutoReduceNmaster));
 			YSTR("BanishMouseCursor"); YBOOL(enabled(BanishMouseCursor));
 			YSTR("BanishMouseCursorToCorner"); YBOOL(enabled(BanishMouseCursorToCorner));
-			YSTR("SmartGaps"); YBOOL(enabled(SmartGaps));
-			YSTR("SmartGapsMonocle"); YBOOL(enabled(SmartGapsMonocle));
-			YSTR("Systray"); YBOOL(enabled(Systray));
-			YSTR("SystrayNoAlpha"); YBOOL(enabled(SystrayNoAlpha));
-			YSTR("Swallow"); YBOOL(enabled(Swallow));
-			YSTR("SwallowFloating"); YBOOL(enabled(SwallowFloating));
-			YSTR("CenteredWindowName"); YBOOL(enabled(CenteredWindowName));
+			YSTR("BarBorder"); YBOOL(enabled(BarBorder));
+			YSTR("BarBorderColBg"); YBOOL(enabled(BarBorderColBg));
 			YSTR("BarActiveGroupBorderColor"); YBOOL(enabled(BarActiveGroupBorderColor));
 			YSTR("BarMasterGroupBorderColor"); YBOOL(enabled(BarMasterGroupBorderColor));
-			YSTR("FlexWinBorders"); YBOOL(enabled(FlexWinBorders));
-			YSTR("SpawnCwd"); YBOOL(enabled(SpawnCwd));
-			YSTR("ColorEmoji"); YBOOL(enabled(ColorEmoji));
-			YSTR("Status2DNoAlpha"); YBOOL(enabled(Status2DNoAlpha));
-			YSTR("BarBorder"); YBOOL(enabled(BarBorder));
 			YSTR("BarPadding"); YBOOL(enabled(BarPadding));
-			YSTR("NoBorders"); YBOOL(enabled(NoBorders));
-			YSTR("Warp"); YBOOL(enabled(Warp));
-			YSTR("FocusOnClick"); YBOOL(enabled(FocusOnClick));
-			YSTR("FocusOnNetActive"); YBOOL(enabled(FocusOnNetActive));
+			YSTR("CenteredWindowName"); YBOOL(enabled(CenteredWindowName));
+			YSTR("CenterSizeHintsClients"); YBOOL(enabled(CenterSizeHintsClients));
+			YSTR("ColorEmoji"); YBOOL(enabled(ColorEmoji));
+			YSTR("Debug"); YBOOL(enabled(Debug));
+			YSTR("DecorationHints"); YBOOL(enabled(DecorationHints));
+			YSTR("FlexWinBorders"); YBOOL(enabled(FlexWinBorders));
 			YSTR("FocusedOnTop"); YBOOL(enabled(FocusedOnTop));
 			YSTR("FocusedOnTopTiled"); YBOOL(enabled(FocusedOnTopTiled));
 			YSTR("FocusFollowMouse"); YBOOL(enabled(FocusFollowMouse));
-			YSTR("DecorationHints"); YBOOL(enabled(DecorationHints));
-			YSTR("AllowNoModifierButtons"); YBOOL(enabled(AllowNoModifierButtons));
-			YSTR("CenterSizeHintsClients"); YBOOL(enabled(CenterSizeHintsClients));
-			YSTR("ResizeHints"); YBOOL(enabled(ResizeHints));
-			YSTR("SnapToWindows"); YBOOL(enabled(SnapToWindows));
-			YSTR("SnapToGaps"); YBOOL(enabled(SnapToGaps));
-			YSTR("SortScreens"); YBOOL(enabled(SortScreens));
-			YSTR("ViewOnWs"); YBOOL(enabled(ViewOnWs));
-			YSTR("Xresources"); YBOOL(enabled(Xresources));
-			YSTR("Debug"); YBOOL(enabled(Debug));
-			YSTR("AltWorkspaceIcons"); YBOOL(enabled(AltWorkspaceIcons));
+			YSTR("FocusOnClick"); YBOOL(enabled(FocusOnClick));
+			YSTR("FocusOnNetActive"); YBOOL(enabled(FocusOnNetActive));
 			YSTR("GreedyMonitor"); YBOOL(enabled(GreedyMonitor));
-			YSTR("SmartLayoutConversion"); YBOOL(enabled(SmartLayoutConversion));
-			YSTR("AutoHideScratchpads"); YBOOL(enabled(AutoHideScratchpads));
+			YSTR("NoBorders"); YBOOL(enabled(NoBorders));
+			YSTR("ResizeHints"); YBOOL(enabled(ResizeHints));
+			YSTR("RestrictFocusstackToMonitor"); YBOOL(enabled(RestrictFocusstackToMonitor));
 			YSTR("RioDrawIncludeBorders"); YBOOL(enabled(RioDrawIncludeBorders));
 			YSTR("RioDrawSpawnAsync"); YBOOL(enabled(RioDrawSpawnAsync));
-			YSTR("RestrictFocusstackToMonitor"); YBOOL(enabled(RestrictFocusstackToMonitor));
-			YSTR("WinTitleIcons"); YBOOL(enabled(WinTitleIcons));
+			YSTR("SmartGaps"); YBOOL(enabled(SmartGaps));
+			YSTR("SmartGapsMonocle"); YBOOL(enabled(SmartGapsMonocle));
+			YSTR("SmartLayoutConversion"); YBOOL(enabled(SmartLayoutConversion));
+			YSTR("SnapToGaps"); YBOOL(enabled(SnapToGaps));
+			YSTR("SnapToWindows"); YBOOL(enabled(SnapToWindows));
+			YSTR("SortScreens"); YBOOL(enabled(SortScreens));
+			YSTR("SpawnCwd"); YBOOL(enabled(SpawnCwd));
 			YSTR("StackerIcons"); YBOOL(enabled(StackerIcons));
+			YSTR("Status2DNoAlpha"); YBOOL(enabled(Status2DNoAlpha));
+			YSTR("Swallow"); YBOOL(enabled(Swallow));
+			YSTR("SwallowFloating"); YBOOL(enabled(SwallowFloating));
+			YSTR("Systray"); YBOOL(enabled(Systray));
+			YSTR("SystrayNoAlpha"); YBOOL(enabled(SystrayNoAlpha));
+			YSTR("ViewOnWs"); YBOOL(enabled(ViewOnWs));
+			YSTR("Warp"); YBOOL(enabled(Warp));
+			YSTR("WinTitleIcons"); YBOOL(enabled(WinTitleIcons));
 			YSTR("WorkspaceLabels"); YBOOL(enabled(WorkspaceLabels));
 			YSTR("WorkspacePreview"); YBOOL(enabled(WorkspacePreview));
+			YSTR("Xresources"); YBOOL(enabled(Xresources));
 		)
 	)
 	// clang-format on
@@ -150,8 +152,8 @@ dump_client(yajl_gen gen, Client *c)
 {
 	// clang-format off
 	YMAP(
-		YSTR("name"); YSTR(c->name);
-		YSTR("altname"); YSTR(c->altname);
+		YSTR("name"); YSTR(NVL(c->name, "NULL"));
+		YSTR("alttitle"); YSTR(NVL(c->alttitle, "NULL"));
 		YSTR("window_id"); YINT(c->win);
 		YSTR("workspace"); YSTR(c->ws->name);
 		YSTR("monitor_number"); YINT(c->ws->mon->num);
@@ -225,6 +227,7 @@ dump_client(yajl_gen gen, Client *c)
 			YSTR("IgnoreMinimumSizeHints"); YBOOL(IGNOREMINIMUMSIZEHINTS(c));
 			YSTR("Marked"); YBOOL(ISMARKED(c));
 			YSTR("NeedResize"); YBOOL(NEEDRESIZE(c));
+			YSTR("Swallowed"); YBOOL(SWALLOWED(c));
 			YSTR("NeverFocus"); YBOOL(NEVERFOCUS(c));
 			YSTR("NoBorder"); YBOOL(NOBORDER(c));
 			YSTR("NoFocusOnNetActive"); YBOOL(NOFOCUSONNETACTIVE(c));
@@ -339,8 +342,8 @@ dump_monitor(yajl_gen gen, Monitor *mon, int is_selected)
 
 		YSTR("layout"); YMAP(
 			YSTR("symbol"); YMAP(
-				YSTR("current"); YSTR(ws->ltsymbol);
-				YSTR("old"); YSTR(ws->prevlayout->symbol);
+				YSTR("current"); YSTR(NVL(ws->ltsymbol, "NULL"));
+				YSTR("old"); YSTR(NVL(ws->prevlayout->symbol, "NULL"));
 			)
 			YSTR("address"); YMAP(
 				YSTR("current"); YINT((uintptr_t)ws->layout);

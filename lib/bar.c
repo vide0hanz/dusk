@@ -150,7 +150,7 @@ drawbarwin(Bar *bar)
 	if (!bar || !bar->win || bar->external)
 		return;
 
-	int r, w, mw, total_drawn = 0;
+	int r, w, mw, total_drawn = 0, idx;
 	int rx, lx, rw, lw; // bar size, split between left and right if a center module is added
 	const BarRule *br;
 	Monitor *lastmon;
@@ -163,7 +163,8 @@ drawbarwin(Bar *bar)
 		bar->scheme = SchemeNorm;
 
 	if (bar->borderpx) {
-		XSetForeground(drw->dpy, drw->gc, scheme[bar->scheme][ColBorder].pixel);
+		idx = (enabled(BarBorderColBg) ? ColBg : ColBorder);
+		XSetForeground(drw->dpy, drw->gc, scheme[bar->scheme][idx].pixel);
 		XFillRectangle(drw->dpy, drw->drawable, drw->gc, 0, 0, bar->bw, bar->bh);
 	}
 
@@ -798,12 +799,14 @@ matchextbar(Bar *bar, Window win)
 	if (!XGetClassHint(dpy, win, &ch))
 		return 0;
 
+	char *name = NULL;
 	int matched = 0;
 	class    = ch.res_class ? ch.res_class : broken;
 	instance = ch.res_name  ? ch.res_name  : broken;
-	char name[256] = {0};
-	if (!gettextprop(win, netatom[NetWMName], name, sizeof name))
-		gettextprop(win, XA_WM_NAME, name, sizeof name);
+
+	if (!gettextprop(win, netatom[NetWMName], &name))
+		if (!gettextprop(win, XA_WM_NAME, &name))
+			name = strdup(broken);
 
 	if (enabled(Debug)) {
 		fprintf(stderr, "matchextbar: checking new window %s (%ld), class = '%s', instance = '%s'\n", name, win, class, instance);
@@ -816,22 +819,23 @@ matchextbar(Bar *bar, Window win)
 		);
 	}
 
-	if (def->extclass != NULL && strcmp(def->extclass, class))
-		goto bail;
-
-	if (def->extinstance != NULL && strcmp(def->extinstance, instance))
-		goto bail;
-
-	if (def->extname != NULL && strcmp(def->extname, name))
-		goto bail;
-
 	matched = 1;
 
-bail:
+	if (def->extclass != NULL && strcmp(def->extclass, class))
+		matched = 0;
+
+	if (def->extinstance != NULL && strcmp(def->extinstance, instance))
+		matched = 0;
+
+	if (def->extname != NULL && strcmp(def->extname, name))
+		matched = 0;
+
 	if (ch.res_class)
 		XFree(ch.res_class);
 	if (ch.res_name)
 		XFree(ch.res_name);
+
+	free(name);
 
 	if (enabled(Debug)) {
 		fprintf(stderr, "matchextbar: window %ld %s a match for external bar %d monitor %d\n", win, matched ? "is" : "is not", def->idx, def->monitor);
