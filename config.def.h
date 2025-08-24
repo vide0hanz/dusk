@@ -237,7 +237,7 @@ static const Rule clientrules[] = {
 	{ .role = "browser", .workspace = "8", .flags = AttachBelow|OnlyModButtons|SwitchWorkspace },
 	{ .role = "pop-up", .flags = AlwaysOnTop|Floating|Centered },
 
-	{ .class = "Alacritty", .flags = Terminal },
+	{ .class = "kitty", .flags = Terminal },
 	{ .class = "Diffuse", .workspace = "4", .flags = NoSwallow|SwitchWorkspace|RevertWorkspace },
 	{ .class = "firefox", .flags = AttachMaster|SwitchWorkspace },
 	{ .class = "Gimp", .workspace = "5", .flags = Floating|SwitchWorkspace },
@@ -480,7 +480,7 @@ static const StackerIcon stackericons[] = {
 #define CMD(...)   { .v = (const char*[]){ NULL, __VA_ARGS__, NULL } }
 
 /* Scratch/Spawn commands:        NULL (scratchkey), command, argument, argument, ..., NULL */
-static const char *termcmd[]  = { "alacritty", NULL };
+static const char *termcmd[]  = { "kitty", NULL };
 static const char *dmenucmd[] = {
 	"dmenu_run",
 	"-fn", dmenufont,
@@ -491,9 +491,9 @@ static const char *dmenucmd[] = {
 //	"-bb", dmenubordercolor,
 	NULL
 };
-static const char *spcmd_w[] = {"w", "alacritty", "-T", "spterm (w)", NULL };
-static const char *spcmd_e[] = {"e", "alacritty", "-T", "spterm (e)", NULL };
-static const char *spcmd_r[] = {"r", "alacritty", "-T", "spfm (r)", "-e", "yazi", NULL };
+static const char *spcmd_w[] = {"w", "kitty", "-T", "spterm (w)", NULL };
+static const char *spcmd_e[] = {"e", "kitty", "-T", "spterm (e)", NULL };
+static const char *spcmd_r[] = {"r", "kitty", "-T", "spfm (r)", "-e", "yazi", NULL };
 static const char *statusclickcmd[] = { "~/bin/statusbar/statusclick.sh", NULL };
 
 static Key keys[] = {
